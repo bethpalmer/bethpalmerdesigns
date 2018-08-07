@@ -34,18 +34,14 @@ $fields = array(
     'marketing-campaigns' => 'Interested in PPC advertising',
     'source-support' => 'How contact found me');
 
-// message that will be displayed when everything is OK :)
-$okMessage = 'Thank you. I appreciate your time. This information will be really useful in informing the process moving forwards. I will be in touch with you soon!';
-
-// If something goes wrong, we will display this message.
-$errorMessage = "Uh-oh, looks like there's been some kind of error. I'm so sorry. If the problem persists could you be a darling and let me know on 07523257537? Thank you.";
-
 /*
  *  The SENDING bit
  */
 
 // if you are not debugging and don't need error reporting, turn this off by error_reporting(0);
 error_reporting(E_ALL & ~E_NOTICE);
+
+$hasError = false;
 
 try
 {
@@ -71,23 +67,14 @@ try
     // Send email
     mail($sendTo, $subject, $emailText, implode("\n", $headers));
 
-    $responseArray = array('type' => 'success', 'message' => $okMessage);
 }
 catch (\Exception $e)
 {
-    $responseArray = array('type' => 'danger', 'message' => $errorMessage);
-}
+    $hasError = true;
 
 
-// if requested by AJAX request return JSON response
-if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
-    $encoded = json_encode($responseArray);
-
-    header('Content-Type: application/json');
-
-    echo $encoded;
-}
-// else just display the message
-else {
-    echo $responseArray['message'];
+if ($hasError) {
+    header("Location: fail.html");
+} else {
+    header("Location: success.html");
 }
